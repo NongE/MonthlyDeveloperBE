@@ -1,23 +1,18 @@
 import json
 from bson import json_util
 from flask import request, redirect, jsonify
-from flask_restx import Api, Resource, fields, Namespace, reqparse
+from flask_restx import Api, Resource, fields, Namespace
 
 from config import db_connector
 from model import recruit_post_model as model
 
+# 팀 구인과 관련된 모델 선언
 Recruit = model.RecruitPostModel()
-recruit_ns = Recruit.Recruit
+recruit_ns = Recruit.recruit_ns
 recruit_post_model = Recruit.recruit_post_model
 
-# 특정 게시글을 검색하기 위한 조건
-search_parse = reqparse.RequestParser()
-search_parse.add_argument("filter_type", type=str, help="검색 방법", required = True)
-search_parse.add_argument("recruit_all", type=str, help="게시글 번호")
-search_parse.add_argument("recruit_author", type=str, help="게시글 작성자")
-search_parse.add_argument("recruit_tags", type=str, help="게시글 태그")
-search_parse.add_argument("recruit_state", type=str, help="게시글 상태")
-
+# 특정 게시글을 검색하기 위한 조건, Query Param 활용
+search_parse = Recruit.search_parse
 
 # 새로운 게시글 등록 (작성)
 @recruit_ns.route('/new_post', methods=['POST'])
