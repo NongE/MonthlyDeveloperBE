@@ -12,7 +12,6 @@ class RecruitPostModel():
     })
 
     search_parse = reqparse.RequestParser()
-    search_parse.add_argument("filter_type", type=str, help="검색 방법", required = True)
     search_parse.add_argument("recruit_all", type=str, help="게시글 번호")
     search_parse.add_argument("recruit_author", type=str, help="게시글 작성자")
     search_parse.add_argument("recruit_tags", type=str, help="게시글 태그")
