@@ -29,40 +29,70 @@ class RecruitPostSearch(Resource):
     @recruit_ns.expect(search_parse)
     def get(self):
 
-        try:
-            # [전체] 에서 특정 단어가 들어간 경우를 찾는 경우
-            # 특정 단어가 포함된 글을 찾기 위해서 .*[특정단어].* 형태로 만듬
+        search_method = request.args.get('recruit_search_method')
 
-            recruit_all = '.*' + search_parse.parse_args()['recruit_all'] + '.*'
-            data = [doc for doc in
-                    db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': recruit_all}},
-                                                                     {"recruit_author": {'$regex': recruit_all}},
-                                                                     {"recruit_contents": {'$regex': recruit_all}},
-                                                                     {"recruit_tags": {'$regex': recruit_all}},
-                                                                     ]})]
-            return json.loads(json_util.dumps(data))
+        def for_unit_search(search_method):
+            try:
+                # [전체] 에서 특정 단어가 들어간 경우를 찾는 경우
+                # 특정 단어가 포함된 글을 찾기 위해서 .*[특정단어].* 형태로 만듬
 
-        except:
-            # 아무것도 쓰지 않고 넘긴 경우
-            data_all = [doc for doc in db_connector.mongo.db.recruit_post.find()]
+                recruit_all = '.*' + search_parse.parse_args()['recruit_search_word'] + '.*'
+                data = [doc for doc in
+                        db_connector.mongo.db.recruit_post.find({search_method: {'$regex': recruit_all}})]
+                return json.loads(json_util.dumps(data))
 
-            new_post_res = {
-                "req_path": request.path,
-                "req_result": "No word",
-                "result": json.loads(json_util.dumps(data_all))
-            }
-            return new_post_res
+            except:
+                # 아무것도 쓰지 않고 넘긴 경우
+                data_all = [doc for doc in db_connector.mongo.db.recruit_post.find()]
 
-        # 글쓴이로 글 찾기
+                new_post_res = {
+                    "req_path": request.path,
+                    "req_result": "Fail",
+                    "result": json.loads(json_util.dumps(data_all))
+                }
+                return new_post_res
 
-        # tags로 글 찾기
+        # 게시물 전체 검색
+        if search_method == 'all':
+            try:
+                # [전체] 에서 특정 단어가 들어간 경우를 찾는 경우
+                # 특정 단어가 포함된 글을 찾기 위해서 .*[특정단어].* 형태로 만듬
 
-        # contents 글 찾기
+                recruit_all = '.*' + search_parse.parse_args()['recruit_search_word'] + '.*'
+                data = [doc for doc in
+                        db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': recruit_all}},
+                                                                         {"recruit_author": {'$regex': recruit_all}},
+                                                                         {"recruit_contents": {'$regex': recruit_all}},
+                                                                         {"recruit_tags": {'$regex': recruit_all}},
+                                                                         ]})]
+                return json.loads(json_util.dumps(data))
 
-        # state로 글 찾기
+            except:
+                # 아무것도 쓰지 않고 넘긴 경우
+                data_all = [doc for doc in db_connector.mongo.db.recruit_post.find()]
 
-        # title로 글 찾기
+                new_post_res = {
+                    "req_path": request.path,
+                    "req_result": "Fail",
+                    "result": json.loads(json_util.dumps(data_all))
+                }
+                return new_post_res
 
+        # 글쓴이로 검색
+        elif search_method == 'author':
+            return for_unit_search("recruit_author")
+
+        # 태그로 검색
+        elif search_method == 'tags':
+            return for_unit_search("recruit_tags")
+
+        # 글 내용으로 검색
+        elif search_method == 'contents':
+            return for_unit_search("recruit_contents")
+
+        # 제목으로 검색
+        elif search_method == 'title':
+            return for_unit_search("recruit_title")
 
 # 게시글 수정
 @recruit_ns.route('/update/<int:recruit_post_id>', methods=['PUT'])
