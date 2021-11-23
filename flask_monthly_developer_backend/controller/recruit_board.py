@@ -12,8 +12,16 @@ Recruit = model.RecruitPostModel()
 recruit_ns = Recruit.recruit_ns
 recruit_post_model = Recruit.recruit_post_model
 
+<<<<<<< HEAD
 # 특정 게시글을 검색하기 위한 조건, Query Param 활용
 search_parse = Recruit.search_parse
+=======
+# 특정 게시글을 검색하기 위한 조건
+search_parse = reqparse.RequestParser()
+search_parse.add_argument("recruit_search_method", type=str, help="게시글 찾는 방법")
+search_parse.add_argument("recruit_search_word", type=str, help="게시글 단어")
+
+>>>>>>> upstream/main
 
 # 새로운 게시글 등록 (작성)
 @recruit_ns.route('/new_post', methods=['POST'])
