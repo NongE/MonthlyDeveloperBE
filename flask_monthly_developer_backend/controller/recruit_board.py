@@ -9,6 +9,7 @@ from service import recruit_service
 Recruit = model.RecruitPostModel()
 recruit_ns = Recruit.recruit_ns
 recruit_post_model = Recruit.recruit_post_model
+recruit_update_post_model = Recruit.recruit_update_post_model
 
 # 특정 게시글을 검색하기 위한 조건, Query Param 활용
 search_parse = Recruit.search_parse
@@ -30,11 +31,11 @@ class RecruitPostSearch(Resource):
         
 
 # 게시글 수정
-@recruit_ns.route('/update/<int:recruit_post_id>', methods=['PUT'])
+@recruit_ns.route('/update', methods=['PUT'])
 class RecruitPostUpdate(Resource):
-    @recruit_ns.expect(recruit_post_model)
-    def put(self, recruit_post_id):
-        return recruit_service.update_post(request, recruit_post_id)
+    @recruit_ns.expect(recruit_update_post_model)
+    def put(self):
+        return recruit_service.update_post(request)
         
 
 # 게시글 삭제

@@ -125,14 +125,12 @@ def search_post(req_data, search_parse):
         return for_unit_search("recruit_title")
 
 
-def update_post(req_data, recruit_post_id):
+def update_post(req_data):
     # 응답을 위한 Dict
     update_post_res = {}
     try:
-        update_data = req_data.json
-        update_data["recruit_post_id"] = recruit_post_id
-            
-        db_connector.mongo.db.recruit_post.update({"recruit_post_id": recruit_post_id}, update_data)
+        update_data = req_data.json  
+        db_connector.mongo.db.recruit_post.update({"recruit_post_id": update_data["recruit_post_id"]}, update_data)
             
         update_post_res = {
             "req_path": req_data.path,
