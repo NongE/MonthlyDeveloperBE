@@ -1,4 +1,6 @@
 from config import db_connector
+import json
+from bson import json_util
 
 def save_post(req_data):
     # 응답을 위한 Dict
@@ -53,3 +55,95 @@ def save_post(req_data):
             "req_result": "Fail"
         }
         return new_post_res
+
+
+def search_post(req_data, search_parse):
+
+    def for_unit_search(search_method):
+        try:
+            # [전체] 에서 특정 단어가 들어간 경우를 찾는 경우
+            # 특정 단어가 포함된 글을 찾기 위해서 .*[특정단어].* 형태로 만듬
+
+            recruit_all = '.*' + search_parse.parse_args()['recruit_search_word'] + '.*'
+            data = [doc for doc in
+                            db_connector.mongo.db.recruit_post.find({search_method: {'$regex': recruit_all}})]
+            return json.loads(json_util.dumps(data))
+
+        except:
+            # 아무것도 쓰지 않고 넘긴 경우
+            data_all = [doc for doc in db_connector.mongo.db.recruit_post.find()]
+
+            new_post_res = {
+                "req_path": req_data.path,
+                "req_result": "Fail",
+                "result": json.loads(json_util.dumps(data_all))
+            }
+            return new_post_res
+
+    search_method = req_data.args.get('recruit_search_method')
+
+    # 게시물 전체 검색
+    if search_method == 'all':
+        try:
+            # [전체] 에서 특정 단어가 들어간 경우를 찾는 경우
+            # 특정 단어가 포함된 글을 찾기 위해서 .*[특정단어].* 형태로 만듬
+
+            recruit_all = '.*' + search_parse.parse_args()['recruit_search_word'] + '.*'
+            data = [doc for doc in
+                        db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': recruit_all}},
+                                                                         {"recruit_author": {'$regex': recruit_all}},
+                                                                         {"recruit_contents": {'$regex': recruit_all}},
+                                                                         {"recruit_tags": {'$regex': recruit_all}},
+                                                                         ]})]
+            return json.loads(json_util.dumps(data))
+
+        except:
+            # 아무것도 쓰지 않고 넘긴 경우
+            data_all = [doc for doc in db_connector.mongo.db.recruit_post.find()]
+
+            new_post_res = {
+                    "req_path": req_data.path,
+                    "req_result": "Fail",
+                    "result": json.loads(json_util.dumps(data_all))
+            }
+            return new_post_res
+
+    # 글쓴이로 검색
+    elif search_method == 'author':
+        return for_unit_search("recruit_author")
+
+    # 태그로 검색
+    elif search_method == 'tags':
+        return for_unit_search("recruit_tags")
+
+    # 글 내용으로 검색
+    elif search_method == 'contents':
+        return for_unit_search("recruit_contents")
+
+    # 제목으로 검색
+    elif search_method == 'title':
+        return for_unit_search("recruit_title")
+
+
+def update_post(req_data, recruit_post_id):
+    # 응답을 위한 Dict
+    update_post_res = {}
+    try:
+        update_data = req_data.json
+        update_data["recruit_post_id"] = recruit_post_id
+            
+        db_connector.mongo.db.recruit_post.update({"recruit_post_id": recruit_post_id}, update_data)
+            
+        update_post_res = {
+            "req_path": req_data.path,
+            "req_result": "Done"
+        }
+
+        return update_post_res
+
+    except:
+        update_post_res = {
+            "req_path": req_data.path,
+            "req_result": "Fail"
+        } 
+        return update_post_res
