@@ -1,6 +1,10 @@
-from config import db_connector
 import json
 from bson import json_util
+
+from config import db_connector
+from model import response_model
+
+response_model = response_model.ResponseModel()
 
 def save_post(req_data):
     # 응답을 위한 Dict
@@ -30,11 +34,7 @@ def save_post(req_data):
     # 전달받은 Body 중에 누락된 내용이 있다면 Exception 발생
     # 제목, 글쓸이, 내용, 상태는 누락될 수 없음
     except:
-        new_post_res = {
-            "req_path": req_data.path,
-            "req_result": "Missing Parameter"
-        }
-        return new_post_res
+        return response_model.set_response(req_data.path, 200, "Missing Parameter", None)
     
     try:
         # mongoDB에 추가

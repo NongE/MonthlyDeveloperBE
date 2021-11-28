@@ -11,7 +11,7 @@ class RecruitPostModel():
         'recruit_state': fields.String(description='recruit state', required=True),
     })
 
-    recruit_update_post_model = recruit_ns.model('recruit post model', {
+    recruit_update_post_model = recruit_ns.model('recruit update post model', {
         'recruit_post_id': fields.Integer(description='recruit post id', required=True),
         'recruit_title': fields.String(description='recruit title', required=True),
         'recruit_author': fields.String(description='recruit author', required=True),
