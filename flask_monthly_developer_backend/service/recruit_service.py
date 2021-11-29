@@ -43,18 +43,13 @@ def save_post(req_data):
         post_db.insert(newpost_recruit)
         # 현재 게시물 번호 업데이트
         counter_db.update_one({"type": "recruit_post"}, {"$set": {"counter": recruit_post_id}})
-        new_post_res = {
-            "req_path": req_data.path,
-            "req_result": "Done"
-        }
-        return new_post_res
+
+        return response_model.set_response(req_data.path, 200, "Done", recruit_post_id)
+
     # DB 저장 중 오류 발생 시 Exception
     except:
-        new_post_res = {
-            "req_path": req_data.path,
-            "req_result": "Fail"
-        }
-        return new_post_res
+
+        return response_model.set_response(req_data.path, 200, "DB save Failed", None)
 
 
 def search_post(req_data, search_parse):
