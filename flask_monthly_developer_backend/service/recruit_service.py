@@ -1,5 +1,6 @@
 import json
 from bson import json_util
+from flask import jsonify
 
 from config import db_connector
 from model import response_model
@@ -48,77 +49,75 @@ def save_post(req_data):
 
     # DB 저장 중 오류 발생 시 Exception
     except:
-
         return response_model.set_response(req_data.path, 200, "DB save Failed", None)
 
 
 def search_post(req_data, search_parse):
 
-    def for_unit_search(search_method):
-        try:
-            # [전체] 에서 특정 단어가 들어간 경우를 찾는 경우
-            # 특정 단어가 포함된 글을 찾기 위해서 .*[특정단어].* 형태로 만듬
+    # 검색 범위, 검색 단어를 전달받음
+    # 이후 범위에 해당 하는 단어를 포함하는 게시물 출력
+    def for_unit_search(search_method, search_word):
 
-            recruit_all = '.*' + search_parse.parse_args()['recruit_search_word'] + '.*'
+        # 전체 조회
+        if search_method == None:
+            data = [doc for doc in db_connector.mongo.db.recruit_post.find({}, {"_id":0})]
+
+        # 전체 범위에 대해 검색 (제목 ~ 태그)
+        elif search_method == 'all':
             data = [doc for doc in
-                            db_connector.mongo.db.recruit_post.find({search_method: {'$regex': recruit_all}})]
-            return json.loads(json_util.dumps(data))
+                    db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
+                                                                     {"recruit_author": {'$regex': search_word}},
+                                                                     {"recruit_contents": {'$regex': search_word}},
+                                                                     {"recruit_tags": {'$regex': search_word}},
+                                                                     ]}, {"_id":0})]
+        # 특정 범위에 대해 (제목, 작성자 등)
+        else:
+            data = [doc for doc in
+                            db_connector.mongo.db.recruit_post.find({search_method: {'$regex': search_word}}, {"_id":0})]
+        
+        return response_model.set_response(req_data.path, 200, "Done", data)
 
-        except:
-            # 아무것도 쓰지 않고 넘긴 경우
-            data_all = [doc for doc in db_connector.mongo.db.recruit_post.find()]
+    # 사용 가능한 검색 방식 리스트
+    search_method_list = ["all", "author", "tags", "contents", "title"]
 
-            new_post_res = {
-                "req_path": req_data.path,
-                "req_result": "Fail",
-                "result": json.loads(json_util.dumps(data_all))
-            }
-            return new_post_res
-
+    # Query String으로 검색하고자 하는 범위와 단어를 전달 받음
     search_method = req_data.args.get('recruit_search_method')
+    search_word = search_parse.parse_args()['recruit_search_word']
 
-    # 게시물 전체 검색
-    if search_method == 'all':
-        try:
-            # [전체] 에서 특정 단어가 들어간 경우를 찾는 경우
-            # 특정 단어가 포함된 글을 찾기 위해서 .*[특정단어].* 형태로 만듬
+    # 검색 방식과 검색 단어가 모두 없다 -> 전체 게시글 조회 (find all)
+    if (search_method == None) and (search_parse.parse_args()['recruit_search_word'] == None):
+        return for_unit_search(None, search_word)
 
-            recruit_all = '.*' + search_parse.parse_args()['recruit_search_word'] + '.*'
-            data = [doc for doc in
-                        db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': recruit_all}},
-                                                                         {"recruit_author": {'$regex': recruit_all}},
-                                                                         {"recruit_contents": {'$regex': recruit_all}},
-                                                                         {"recruit_tags": {'$regex': recruit_all}},
-                                                                         ]})]
-            return json.loads(json_util.dumps(data))
-
-        except:
-            # 아무것도 쓰지 않고 넘긴 경우
-            data_all = [doc for doc in db_connector.mongo.db.recruit_post.find()]
-
-            new_post_res = {
-                    "req_path": req_data.path,
-                    "req_result": "Fail",
-                    "result": json.loads(json_util.dumps(data_all))
-            }
-            return new_post_res
+    # 검색 방식과 검색 단어 중 하나라도 없다 -> 검색 불가
+    elif (search_method == None) or (search_parse.parse_args()['recruit_search_word'] == None):
+        return response_model.set_response(req_data.path, 200, "Fail", "Missing search_method or search_word Parameter")
+    
+    # 검색 방식 검증
+    elif search_method in search_method_list:
+        search_word = '.*' + search_word + '.*'
+    # 
+    else:
+        return response_model.set_response(req_data.path, 200, "Fail", "Unknown search_method")
+    
+    # 전체 범위 검색
+    if search_method == "all":
+        return for_unit_search("all", search_word)
 
     # 글쓴이로 검색
     elif search_method == 'author':
-        return for_unit_search("recruit_author")
+        return for_unit_search("recruit_author", search_word)
 
     # 태그로 검색
     elif search_method == 'tags':
-        return for_unit_search("recruit_tags")
+        return for_unit_search("recruit_tags", search_word)
 
     # 글 내용으로 검색
     elif search_method == 'contents':
-        return for_unit_search("recruit_contents")
+        return for_unit_search("recruit_contents", search_word)
 
     # 제목으로 검색
     elif search_method == 'title':
-        return for_unit_search("recruit_title")
-
+        return for_unit_search("recruit_title", search_word)
 
 def update_post(req_data):
     # 응답을 위한 Dict
