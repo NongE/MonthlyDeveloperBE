@@ -58,7 +58,7 @@ def search_post(req_data, search_parse):
 
         # 전체 조회
         if search_method == None:
-            data = db_connector.mongo.db.recruit_post.find({}, {"_id":0}).skip(0).limit(2)
+            data = db_connector.mongo.db.recruit_post.find({}, {"_id":0}).skip((search_page - 1) * 10).limit(10)
             data = [doc for doc in data]
 
         # 전체 범위에 대해 검색 (제목 ~ 태그)
@@ -84,7 +84,10 @@ def search_post(req_data, search_parse):
     search_word = search_parse.parse_args()['recruit_search_word']
     search_page = search_parse.parse_args()['page']
 
-    print(search_page)
+    # 사용자가 page 단위에 0 혹은 음수를 집어 넣는 경우
+    # 강제로 1로 초기화
+    if search_page <= 0:
+        search_page = 1
 
     # 검색 방식과 검색 단어가 모두 없다 -> 전체 게시글 조회 (find all)
     if (search_method == None) and (search_parse.parse_args()['recruit_search_word'] == None):
