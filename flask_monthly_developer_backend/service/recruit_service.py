@@ -62,17 +62,17 @@ def search_post(req_data, search_parse):
             data = [doc for doc in data]
 
         # 전체 범위에 대해 검색 (제목 ~ 태그)
-        elif search_method == 'all':                           
-            data = [doc for doc in
-                    db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
+        elif search_method == 'all':
+            data = db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
                                                                      {"recruit_author": {'$regex': search_word}},
                                                                      {"recruit_contents": {'$regex': search_word}},
                                                                      {"recruit_tags": {'$regex': search_word}},
-                                                                     ]}, {"_id":0})]
+                                                                     ]}, {"_id":0}).skip((search_page - 1) * 10).limit(10)
+            data = [doc for doc in data]
         # 특정 범위에 대해 검색(제목, 작성자 등)
         else:
-            data = [doc for doc in
-                            db_connector.mongo.db.recruit_post.find({search_method: {'$regex': search_word}}, {"_id":0})]
+            data = db_connector.mongo.db.recruit_post.find({search_method: {'$regex': search_word}}, {"_id":0}).skip((search_page - 1) * 10).limit(10)
+            data = [doc for doc in data]
         
         return response_model.set_response(req_data.path, 200, "Done", data)
 
