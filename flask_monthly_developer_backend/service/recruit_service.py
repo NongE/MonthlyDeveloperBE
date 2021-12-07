@@ -77,11 +77,11 @@ def search_post(req_data, search_parse):
         return response_model.set_response(req_data.path, 200, "Done", data)
 
     # 사용 가능한 검색 방식 리스트
-    search_method_list = ["all", "author", "tags", "contents", "title"]
+    search_method_list = ["all", "title", "author", "contents", "tags"]
 
     # Query String으로 검색하고자 하는 범위와 단어를 전달 받음
-    search_method = search_parse.parse_args()['recruit_search_method']
-    search_word = search_parse.parse_args()['recruit_search_word']
+    search_method = search_parse.parse_args()['search_method']
+    search_word = search_parse.parse_args()['search_keyword']
     search_page = search_parse.parse_args()['page']
 
     # 사용자가 page 단위에 0 혹은 음수를 집어 넣는 경우
@@ -90,11 +90,11 @@ def search_post(req_data, search_parse):
         search_page = 1
 
     # 검색 방식과 검색 단어가 모두 없다 -> 전체 게시글 조회 (find all)
-    if (search_method == None) and (search_parse.parse_args()['recruit_search_word'] == None):
+    if (search_method == None) and (search_word == None):
         return for_unit_search(None, search_word, search_page)
 
     # 검색 방식과 검색 단어 중 하나라도 없다 -> 검색 불가
-    elif (search_method == None) or (search_parse.parse_args()['recruit_search_word'] == None):
+    elif (search_method == None) or (search_word == None):
         return response_model.set_response(req_data.path, 200, "Fail", "Missing search_method or search_word Parameter")
     
     # 이 외에는 지원하는 검색 방식인지 검증
