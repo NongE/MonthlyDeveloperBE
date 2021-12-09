@@ -5,3 +5,4 @@
 SetProperty.java
 */__pycache__/*
 *.pyc
+config.py
