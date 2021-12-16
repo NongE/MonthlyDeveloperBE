@@ -11,8 +11,8 @@ Authlib을 사용하지 않고 구현한 부분
 auth_ns = Namespace("Github Oauth", description="Github Oauth 로그인")
 
 # 사용자가 로그인 할 때 접속하는 URL (http://localhost:5000/login/test)
-@auth_ns.route('/test', methods=['GET'])
-class test(Resource):
+@auth_ns.route('/github', methods=['GET'])
+class Github(Resource):
     def get(self):
         # Github 측으로 로그인하고 Access Code를 받기 위해 redirect 설정
         redirect_uri = f"http://github.com/login/oauth/authorize?client_id={GITHUB_CLIENT_ID}&redirect_uri=http://localhost:5000/login/callback"
