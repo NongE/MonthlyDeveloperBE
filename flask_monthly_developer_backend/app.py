@@ -4,17 +4,12 @@ from flask_restx import Api
 import os
 
 from controller import recruit_board, authentication
-from config import config
-from config import db_connector
 
 def create_env():
     app = Flask(__name__)
 
-    # MongoDB 연결을 설정합니다.
-    app.config['MONGO_URI'] = config.MONGO_URI
     app.config['JSON_AS_ASCII'] = False
     app.config['SECRET_KEY'] = os.urandom(24)
-    db_connector.mongo.init_app(app)
 
     api = Api(app, version=1.0, title="flask_env", description="flask_env_test")
 

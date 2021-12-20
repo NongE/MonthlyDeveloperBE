@@ -2,7 +2,7 @@ import requests
 
 from flask import url_for, redirect, request
 from flask_restx import Resource, Namespace
-from config.config import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+from config.env import Env
 
 """
 Authlib을 사용하지 않고 구현한 부분
@@ -15,7 +15,7 @@ auth_ns = Namespace("Github Oauth", description="Github Oauth 로그인")
 class Github(Resource):
     def get(self):
         # Github 측으로 로그인하고 Access Code를 받기 위해 redirect 설정
-        redirect_uri = f"http://github.com/login/oauth/authorize?client_id={GITHUB_CLIENT_ID}&redirect_uri=http://localhost:5000/login/callback"
+        redirect_uri = f"http://github.com/login/oauth/authorize?client_id={Env.GITHUB_CLIENT_ID}&redirect_uri=http://localhost:5000/login/callback"
 
         # 로그인을 위한 redirect
         return redirect(redirect_uri)
@@ -29,8 +29,8 @@ class RedirectTest(Resource):
         # Access Code는 Query param 의 형태로 떨어짐
         # request.args.get('code') 부분
         access_token_param = {
-            "client_id": GITHUB_CLIENT_ID,
-            "client_secret": GITHUB_CLIENT_SECRET,
+            "client_id": Env.GITHUB_CLIENT_ID,
+            "client_secret": Env.GITHUB_CLIENT_SECRET,
             "code": request.args.get('code')
         }
 
@@ -66,3 +66,34 @@ class RedirectTest(Resource):
 
         # 응답
         return f"User name: {info_res.json()['login']} User E-main: {info_res.json()['email']}"
+
+
+### JWT TEST ###
+
+from flask_restx import fields, Namespace, reqparse
+
+user_model = auth_ns.model('user model', {
+        'login': fields.String(description='github login', required=True),
+        'email': fields.String(description='github email', required=True),
+    })
+
+import jwt
+
+@auth_ns.route('/get_token', methods=['POST'])
+class GetToken(Resource):
+    @auth_ns.expect(user_model)
+    def post(self):
+        req = request.json
+        payload = {
+            "iss": "MonthlyDeveloper",
+            "sub": "UserId",
+            "userId": req["login"] + req["email"]
+        }
+        token = jwt.encode(payload, Env.SECRET_KEY, algorithm = 'HS256')
+
+        result = {
+            "token": token,
+            "decode_token": jwt.decode(token, Env.SECRET_KEY, algorithms = 'HS256')
+        }
+
+        return result

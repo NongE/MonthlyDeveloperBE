@@ -12,9 +12,9 @@ def save_post(req_data):
     # 게시글의 고유 아이디 정보
     # 게시글 고유 아이디는 게시글의 등록 순서를 의미
     # 현재 k번 게시글까지 있다고 가정하였을 때 새롭게 등록될 게시글은 k+1번째 게시글임
-    counter_db = db_connector.mongo.db.counter
+    counter_db = db_connector.mongo.counter
     recruit_post_id = counter_db.find_one({"type": "recruit_post"}, {"_id":0})["counter"] + 1
-    post_db = db_connector.mongo.db.recruit_post
+    post_db = db_connector.mongo.recruit_post
     try:
         # 새 글 생성
         recruit_title = req_data.json.get("recruit_title")  # 제목
@@ -58,12 +58,12 @@ def search_post(req_data, search_parse):
 
         # 전체 조회
         if search_method == None:
-            data = db_connector.mongo.db.recruit_post.find({}, {"_id":0}).skip((search_page - 1) * 10).limit(10)
+            data = db_connector.mongo.recruit_post.find({}, {"_id":0}).skip((search_page - 1) * 10).limit(10)
             data = [doc for doc in data]
 
         # 전체 범위에 대해 검색 (제목 ~ 태그)
         elif search_method == 'all':
-            data = db_connector.mongo.db.recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
+            data = db_connector.mongo.recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
                                                                      {"recruit_author": {'$regex': search_word}},
                                                                      {"recruit_contents": {'$regex': search_word}},
                                                                      {"recruit_tags": {'$regex': search_word}},
@@ -71,7 +71,7 @@ def search_post(req_data, search_parse):
             data = [doc for doc in data]
         # 특정 범위에 대해 검색(제목, 작성자 등)
         else:
-            data = db_connector.mongo.db.recruit_post.find({search_method: {'$regex': search_word}}, {"_id":0}).skip((search_page - 1) * 10).limit(10)
+            data = db_connector.mongo.recruit_post.find({search_method: {'$regex': search_word}}, {"_id":0}).skip((search_page - 1) * 10).limit(10)
             data = [doc for doc in data]
         
         return response_model.set_response(req_data.path, 200, "Done", data)
@@ -130,7 +130,7 @@ def update_post(req_data):
     
     try:
         update_data = req_data.json  
-        db_connector.mongo.db.recruit_post.update({"recruit_post_id": update_data["recruit_post_id"]}, update_data)
+        db_connector.mongo.recruit_post.update({"recruit_post_id": update_data["recruit_post_id"]}, update_data)
 
         return response_model.set_response(req_data.path, 200, "Done", update_data["recruit_post_id"])
 
