@@ -1,9 +1,14 @@
 ### custom ignore
-*.properties
-*/logs/*
 .DS_Store
-SetProperty.java
+
+*/.idea/*
+*/logs/*
 */__pycache__/*
 *.pyc
+
+*.properties
+
+SetProperty.java
 config.py
+dependency.py
 env.py

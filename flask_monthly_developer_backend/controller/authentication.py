@@ -2,36 +2,40 @@ import requests
 
 from flask import url_for, redirect, request
 from flask_restx import Resource, Namespace
+
 from config.env import Env
+from model import authentication_model
 
 """
-Authlib을 사용하지 않고 구현한 부분
+Authlib을 사용하지 않고 구현
 로그인 URL: ~/login/test
 """
-auth_ns = Namespace("Github Oauth", description="Github Oauth 로그인")
+Auth = authentication_model.AuthenticationModel()
+auth_ns = Auth.auth_ns
+github_access_code_parser = Auth.github_access_code_parser
+create_jwt_model = Auth.create_jwt_model
+validate_jwt = Auth.validate_jwt
 
 # 사용자가 로그인 할 때 접속하는 URL (http://localhost:5000/login/test)
-@auth_ns.route('/github', methods=['GET'])
+@auth_ns.route('/github', methods=['GET'], doc=False)
 class Github(Resource):
     def get(self):
         # Github 측으로 로그인하고 Access Code를 받기 위해 redirect 설정
-        redirect_uri = f"http://github.com/login/oauth/authorize?client_id={Env.GITHUB_CLIENT_ID}&redirect_uri=http://localhost:5000/login/callback"
-
+        redirect_uri = f"http://github.com/login/oauth/authorize?client_id={Env.GITHUB_CLIENT_ID}&redirect_uri={Env.REDIRECT_URL}"
         # 로그인을 위한 redirect
         return redirect(redirect_uri)
-
 
 # Access Code를 전달받기 위한 URL (http://localhost:5000/login/callback)
 @auth_ns.route('/callback', methods=['GET'])
 class RedirectTest(Resource):
+    @auth_ns.expect(github_access_code_parser)
     def get(self):
-
         # Access Code는 Query param 의 형태로 떨어짐
         # request.args.get('code') 부분
         access_token_param = {
             "client_id": Env.GITHUB_CLIENT_ID,
             "client_secret": Env.GITHUB_CLIENT_SECRET,
-            "code": request.args.get('code')
+            "code": github_access_code_parser.parse_args()["code"]
         }
 
         """
@@ -68,32 +72,40 @@ class RedirectTest(Resource):
         return f"User name: {info_res.json()['login']} User E-main: {info_res.json()['email']}"
 
 
-### JWT TEST ###
-
-from flask_restx import fields, Namespace, reqparse
-
-user_model = auth_ns.model('user model', {
-        'login': fields.String(description='github login', required=True),
-        'email': fields.String(description='github email', required=True),
-    })
-
+"""
+JWT TEST
+"""
 import jwt
+from datetime import datetime, timedelta
 
-@auth_ns.route('/get_token', methods=['POST'])
-class GetToken(Resource):
-    @auth_ns.expect(user_model)
+
+@auth_ns.route('/create_token', methods=['POST'])
+class CreateToken(Resource):
+    @auth_ns.expect(create_jwt_model, validate=True)
     def post(self):
-        req = request.json
+
         payload = {
             "iss": "MonthlyDeveloper",
             "sub": "UserId",
-            "userId": req["login"] + req["email"]
+            "userId": request.json["login"] + request.json["email"],
+            "exp": datetime.utcnow() + timedelta(seconds=60)
         }
-        token = jwt.encode(payload, Env.SECRET_KEY, algorithm = 'HS256')
+
+        token = jwt.encode(payload, Env.SECRET_KEY, Env.ALGORITHM)
 
         result = {
-            "token": token,
-            "decode_token": jwt.decode(token, Env.SECRET_KEY, algorithms = 'HS256')
+            "token": token
+        }
+
+        return result
+
+
+@auth_ns.route('/validate_token')
+class ValidateToken(Resource):
+    @auth_ns.expect(validate_jwt)
+    def get(self):
+        result = {
+            "decode_token": jwt.decode(validate_jwt.parse_args()['header'], Env.SECRET_KEY, Env.ALGORITHM)
         }
 
         return result

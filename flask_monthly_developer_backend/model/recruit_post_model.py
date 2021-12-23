@@ -23,4 +23,4 @@ class RecruitPostModel():
     search_parse = reqparse.RequestParser()
     search_parse.add_argument("search_method", type=str, help="게시글 찾는 방법")
     search_parse.add_argument("search_keyword", type=str, help="게시글 단어")
-    search_parse.add_argument("page", type=int, default = 1)
+    search_parse.add_argument("page", type=int, default=1)
