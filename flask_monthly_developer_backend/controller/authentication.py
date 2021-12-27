@@ -54,17 +54,3 @@ class RedirectTest(Resource):
             "User E-mail": user_email,
             "Access Token": access_token
         }
-
-
-"""
-JWT TEST
-"""
-
-import jwt
-
-@auth_ns.route('/validate_token')
-class ValidateToken(Resource):
-    @auth_ns.expect(validate_jwt)
-    def get(self):
-        result = TokenService.validate_token(validate_jwt.parse_args()['header'])
-        return result

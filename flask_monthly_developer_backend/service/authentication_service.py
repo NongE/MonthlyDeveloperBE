@@ -16,7 +16,6 @@ class AuthenticationService():
             "code": access_code
         }
 
-        
         # 요청에 대한 응답을 json으로 받기 위해 header 설정
         access_token_req_header = {"Accept": "application/json"}
 

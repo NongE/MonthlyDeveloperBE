@@ -3,7 +3,7 @@ from flask_restx import Api
 
 import os
 
-from controller import recruit_board, authentication
+from controller import recruit_board, authentication, test
 
 def create_env():
     app = Flask(__name__)
@@ -16,5 +16,6 @@ def create_env():
     # namespace를 추가합니다.
     api.add_namespace(recruit_board.recruit_ns, '/recruit')
     api.add_namespace(authentication.auth_ns, '/login')
+    api.add_namespace(test.test_ns, '/test')
 
     return app
