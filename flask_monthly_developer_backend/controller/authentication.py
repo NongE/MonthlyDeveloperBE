@@ -66,8 +66,5 @@ import jwt
 class ValidateToken(Resource):
     @auth_ns.expect(validate_jwt)
     def get(self):
-        result = {
-            "decode_token": jwt.decode(validate_jwt.parse_args()['header'], Env.SECRET_KEY, Env.ALGORITHM)
-        }
-
+        result = TokenService.validate_token(validate_jwt.parse_args()['header'])
         return result

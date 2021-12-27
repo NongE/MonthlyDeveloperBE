@@ -21,5 +21,15 @@ class TokenService:
         전달받은 토큰이 유효한지 확인하는 함수
         임시로 True 만을 반환하도록 설정
     """
-    def vaildate_token(token):
-        True
+    def validate_token(token):
+        try:
+            jwt.decode(token, Env.SECRET_KEY, Env.ALGORITHM)
+            return "Done!"
+        except jwt.exceptions.InvalidSignatureError:
+            return "Invalid Signature Token"
+
+        except jwt.exceptions.ExpiredSignatureError:
+            return "Expired Token!"
+        
+        except Exception:
+            return "Unknown Token!"
