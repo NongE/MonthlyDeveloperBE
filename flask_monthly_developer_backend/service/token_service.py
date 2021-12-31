@@ -24,12 +24,12 @@ class TokenService:
     def validate_token(token):
         try:
             jwt.decode(token, Env.SECRET_KEY, Env.ALGORITHM)
-            return "Done!"
+            return True
         except jwt.exceptions.InvalidSignatureError:
-            return "Invalid Signature Token"
+            return False
 
         except jwt.exceptions.ExpiredSignatureError:
-            return "Expired Token!"
+            return False
         
         except Exception:
-            return "Unknown Token!"
+            return False
