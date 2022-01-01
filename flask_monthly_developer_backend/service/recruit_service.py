@@ -24,8 +24,8 @@ def save_post(req_data):
         recruit_state = req_data.json.get('recruit_state')  # 상태
 
         newpost_recruit = {'recruit_post_id': recruit_post_id, 'recruit_title': recruit_title,
-                           'recruit_author': recruit_author, 'recruit_contents': recruit_contents,
-                           'recruit_tags': recruit_tags, 'recruit_state': recruit_state}
+                        'recruit_author': recruit_author, 'recruit_contents': recruit_contents,
+                        'recruit_tags': recruit_tags, 'recruit_state': recruit_state}
 
         for k, v in newpost_recruit.items():
             if k != "recruit_tags" and v == None:
@@ -63,10 +63,10 @@ def search_post(req_data, search_parse):
         # 전체 범위에 대해 검색 (제목 ~ 태그)
         elif search_method == 'all':
             data = db_connector.mongo.recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
-                                                                 {"recruit_author": {'$regex': search_word}},
-                                                                 {"recruit_contents": {'$regex': search_word}},
-                                                                 {"recruit_tags": {'$regex': search_word}},
-                                                                 ]}, {"_id": 0}).skip((search_page - 1) * 10).limit(10)
+                                                                {"recruit_author": {'$regex': search_word}},
+                                                                {"recruit_contents": {'$regex': search_word}},
+                                                                {"recruit_tags": {'$regex': search_word}},
+                                                                ]}, {"_id": 0}).skip((search_page - 1) * 10).limit(10)
             data = [doc for doc in data]
         # 특정 범위에 대해 검색(제목, 작성자 등)
         else:
@@ -139,5 +139,5 @@ def update_post(req_data):
 
 
 def delete_post(req_data):
-    db_connector.mongo.db.recruit_post.delete_one({"recruit_state": "구인중"})
+    db_connector.mongo.recruit_post.delete_one({"recruit_state": "구인중"})
     return "is RecruitPostDelete"

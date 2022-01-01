@@ -15,12 +15,19 @@ validate_jwt = test_ns.parser()
 validate_jwt.add_argument('header', location='headers')
 
 
-@test_ns.route('/validate_token', methods=['GET'])
-class ValidateToken(Resource):
+@test_ns.route('/get_validate_token', methods=['GET'])
+class GetValidateToken(Resource):
     @test_ns.expect(validate_jwt)
     @validate_token_decorator
     def get(self):
         return {"result": "validate Header/Token"}
+
+@test_ns.route('/post_validate_token', methods=['POST'])
+class PostValidateToken(Resource):
+    @test_ns.expect(validate_jwt)
+    @validate_token_decorator
+    def post(self):
+        return {"result": "post method validate Header/Token"}
 
 @test_ns.route('/issue_token', methods=['GET'])
 class IssueToken(Resource):
@@ -29,7 +36,7 @@ class IssueToken(Resource):
                 "iss": "test_api",
                 "sub": "test_id",
                 "userId": "test_user_name",
-                "exp": datetime.utcnow() + timedelta(seconds=60)
+                "exp": datetime.utcnow() + timedelta(seconds=Env.ACCESS_TOKEN_EXPIRED_TIME)
         }
 
         created_token = jwt.encode(payload, Env.TEST_SECRET_KEY , Env.TEST_ALGORITHM)
