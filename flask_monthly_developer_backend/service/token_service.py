@@ -3,9 +3,12 @@ import jwt
 
 from config.env import Env
 
+from model import response_model
+response_model = response_model.ResponseModel()
+
 class TokenService:
 
-    def create_token(user_login, user_email):
+    def create_token(req_data, user_login, user_email):
         payload = {
                 "iss": "MonthlyDeveloper",
                 "sub": "UserId",
@@ -14,8 +17,8 @@ class TokenService:
         }
 
         created_token = jwt.encode(payload, Env.SECRET_KEY, Env.ALGORITHM)
-
-        return created_token
+        
+        return response_model.set_response(req_data.path, 200, "Done", created_token)
 
     """
         전달받은 토큰이 유효한지 확인하는 함수
