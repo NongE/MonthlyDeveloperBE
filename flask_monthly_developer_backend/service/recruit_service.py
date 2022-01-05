@@ -139,5 +139,9 @@ def update_post(req_data):
 
 
 def delete_post(req_data):
-    db_connector.mongo.recruit_post.delete_one({"recruit_state": "구인중"})
-    return "is RecruitPostDelete"
+    try:
+        delete_data = req_data.json
+        db_connector.mongo.recruit_post.delete_one({"recruit_post_id": delete_data["recruit_post_id"]})
+        return response_model.set_response(req_data.path, 200, "Done", delete_data["recruit_post_id"])
+    except:
+        return response_model.set_response(req_data.path, 200, "Fail", None)

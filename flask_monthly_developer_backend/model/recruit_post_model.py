@@ -20,6 +20,10 @@ class RecruitPostModel():
         'recruit_state': fields.String(description='recruit state', required=True),
     })
 
+    recruit_delete_post_model = recruit_ns.model('recruit delete post model', {
+        'recruit_post_id': fields.Integer(description='recruit post id', required=True)
+    })
+
     search_parse = reqparse.RequestParser()
     search_parse.add_argument("search_method", type=str, help="게시글 찾는 방법")
     search_parse.add_argument("search_keyword", type=str, help="게시글 단어")

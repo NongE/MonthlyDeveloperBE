@@ -10,6 +10,7 @@ Recruit = model.RecruitPostModel()
 recruit_ns = Recruit.recruit_ns
 recruit_post_model = Recruit.recruit_post_model
 recruit_update_post_model = Recruit.recruit_update_post_model
+recruit_delete_post_model = Recruit.recruit_delete_post_model
 
 # 특정 게시글을 검색하기 위한 조건, Query Param 활용
 search_parse = Recruit.search_parse
@@ -42,5 +43,6 @@ class RecruitPostUpdate(Resource):
 # 게시글 삭제
 @recruit_ns.route('/delete', methods=['DELETE'])
 class RecruitPostDelete(Resource):
-    def delete(self, post_id):
+    @recruit_ns.expect(recruit_delete_post_model)
+    def delete(self):
         return recruit_service.delete_post(request)
