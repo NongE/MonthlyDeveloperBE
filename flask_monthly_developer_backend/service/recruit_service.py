@@ -141,7 +141,12 @@ def update_post(req_data):
 def delete_post(req_data):
     try:
         delete_data = req_data.json
-        db_connector.mongo.recruit_post.delete_one({"recruit_post_id": delete_data["recruit_post_id"]})
-        return response_model.set_response(req_data.path, 200, "Done", delete_data["recruit_post_id"])
-    except:
+        delete_result = db_connector.mongo.recruit_post.delete_one({"recruit_post_id": delete_data["recruit_post_id"]})
+        
+        if delete_result.deleted_count == 0:
+            return response_model.set_response(req_data.path, 200, "Fail", f"No recruit_post_id: {delete_data['recruit_post_id']}")
+        else:
+            return response_model.set_response(req_data.path, 200, "Done", delete_data["recruit_post_id"])
+    except Exception as e:
+        print(e)
         return response_model.set_response(req_data.path, 200, "Fail", None)
