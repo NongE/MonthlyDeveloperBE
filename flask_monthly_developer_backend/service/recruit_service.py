@@ -126,12 +126,12 @@ def search_post(req_data, search_parse):
     elif search_method == 'title':
         return for_unit_search("recruit_title", search_word, search_page)
 
-
 def update_post(req_data):
+    # 기존 게시글 수정
+    # 수정하려는 게시글의 번호와 내용을 전달받음
     try:
         update_data = req_data.json
         db_connector.mongo.recruit_post.update({"recruit_post_id": update_data["recruit_post_id"]}, update_data)
-
         return response_model.set_response(req_data.path, 200, "Done", update_data["recruit_post_id"])
 
     except:
@@ -139,6 +139,8 @@ def update_post(req_data):
 
 
 def delete_post(req_data):
+    # 기존 게시글 삭제
+    # 삭제하고자 하는 게시글의 번호를 전달 받아 삭제
     try:
         delete_data = req_data.json
         delete_result = db_connector.mongo.recruit_post.delete_one({"recruit_post_id": delete_data["recruit_post_id"]})

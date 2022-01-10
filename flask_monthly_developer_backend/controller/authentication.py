@@ -47,6 +47,9 @@ class RedirectTest(Resource):
         if AuthenticationService.vaildate_user(user_login, user_email):
             # 신규회원, 기존회원일 시 토큰 생성
             access_token = TokenService.create_token(request, user_login, user_email)
+        else:
+            # 회원이 아니라면 None값 반환
+            access_token = None
         
         # 응답
         return access_token

@@ -5,9 +5,12 @@ from model import recruit_post_model as model
 
 from service import recruit_service
 
+from .token_require import token_require
+
 # 팀 구인과 관련된 모델 선언
 Recruit = model.RecruitPostModel()
 recruit_ns = Recruit.recruit_ns
+user_token = Recruit.user_token
 recruit_post_model = Recruit.recruit_post_model
 recruit_update_post_model = Recruit.recruit_update_post_model
 recruit_delete_post_model = Recruit.recruit_delete_post_model
@@ -42,6 +45,7 @@ class RecruitPostUpdate(Resource):
 # 게시글 삭제
 @recruit_ns.route('/delete', methods=['DELETE'])
 class RecruitPostDelete(Resource):
-    @recruit_ns.expect(recruit_delete_post_model)
+    @token_require
+    @recruit_ns.doc(body = recruit_delete_post_model, parser=user_token)
     def delete(self):
         return recruit_service.delete_post(request)
