@@ -30,6 +30,7 @@ def save_post(req_data):
         for k, v in newpost_recruit.items():
             if k != "recruit_tags" and v == None:
                 raise Exception("Missing Parameter")
+    
     # 전달받은 Body 중에 누락된 내용이 있다면 Exception 발생
     # 제목, 글쓸이, 내용, 상태는 누락될 수 없음
     except:
@@ -50,7 +51,7 @@ def save_post(req_data):
         return response_model.set_response(req_data.path, 200, "DB save Failed", None)
 
 
-def search_post(req_data, search_parse):
+def search_post(req_data):
     # 검색 범위, 검색 단어를 전달받음
     # 이후 범위에 해당 하는 단어를 포함하는 게시물 출력
     def for_unit_search(search_method, search_word, search_page):
@@ -80,9 +81,20 @@ def search_post(req_data, search_parse):
     search_method_list = ["all", "title", "author", "contents", "tags"]
 
     # Query String으로 검색하고자 하는 범위와 단어를 전달 받음
-    search_method = search_parse.parse_args()['search_method']
-    search_word = search_parse.parse_args()['search_keyword']
-    search_page = search_parse.parse_args()['page']
+    try:
+        search_method = req_data.args["search_method"]
+    except:
+        search_method = None
+
+    try:
+        search_word = req_data.args['search_keyword']
+    except:
+        search_word = None
+    
+    try:
+        search_page = int(req_data.args['page'])
+    except:
+        search_page = None
 
     # 사용자가 page 단위에 0 혹은 음수를 집어 넣는 경우
     # 강제로 1로 초기화

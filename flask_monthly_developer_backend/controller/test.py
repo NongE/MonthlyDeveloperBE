@@ -25,12 +25,19 @@ authorizations = {
             'name': 'code'
         }
     }
+
 test_ns = Namespace("TEST API", description="동작 테스트를 위한 API",
                     authorizations=authorizations)
 
-validate_jwt = test_ns.parser()
-validate_jwt.add_argument('header', location='headers')
+test_header = test_ns.parser()
+test_header.add_argument('header', location='headers', help= 'test header')
 
+test_query_param = test_ns.parser()
+test_query_param.add_argument('a', type=int,  help= 'test query param')
+
+test_model = test_ns.model('test model', {
+        'test String': fields.String(description='Test String', required=True),
+    })
 
 @test_ns.route('/get_validate_token', methods=['GET'])
 class GetValidateToken(Resource):
@@ -46,10 +53,21 @@ class PostValidateToken(Resource):
     def post(self):
         return {"result": "post method validate Header/Token"}
 
-@test_ns.route('/issue_token', methods=['GET'])
+@test_ns.route('/issue_token', methods=['POST'])
 class IssueToken(Resource):
-    @test_ns.doc(security = "test_token")
-    def get(self):
+    @test_ns.expect(test_header, test_query_param, test_model)
+    # @test_ns.expect(test_model)
+    def post(self):
+
+        # Header
+        print(request.headers)
+
+        # Query
+        print(request.args["a"])
+        # print(test_query_param.parse_args())
+        
+        # Body
+        print(request.json)
         
         try:
             if request.headers["test_header"] == Env.TEST_TOKEN:

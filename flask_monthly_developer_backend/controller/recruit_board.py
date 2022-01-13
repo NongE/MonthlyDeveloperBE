@@ -31,7 +31,7 @@ class RecruitPostCreate(Resource):
 class RecruitPostSearch(Resource):
     @recruit_ns.expect(search_parse)
     def get(self):
-        return recruit_service.search_post(request, search_parse)
+        return recruit_service.search_post(request)
         
 
 # 게시글 수정
