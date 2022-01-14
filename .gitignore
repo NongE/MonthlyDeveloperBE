@@ -1,14 +1,11 @@
 ### custom ignore
 .DS_Store
 
-*/.idea/*
-*/logs/*
+/_db
 */__pycache__/*
 *.pyc
 
-*.properties
+*/logs/*
 
-SetProperty.java
 config.py
 dependency.py
-env.py
