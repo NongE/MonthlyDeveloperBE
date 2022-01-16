@@ -1,5 +1,6 @@
 from flask_restx import fields, Namespace, reqparse
 
+
 class RecruitPostModel():
     recruit_ns = Namespace("About recruit post", description="팀 구인 관련 게시물 작성 API")
 

@@ -1,10 +1,15 @@
+import os
+from dotenv import load_dotenv
+
 from datetime import datetime, timedelta
 import jwt
 
-from config.env import Env
 
 from model import response_model
 response_model = response_model.ResponseModel()
+
+load_dotenv()
+
 
 class TokenService:
 
@@ -13,10 +18,10 @@ class TokenService:
                 "iss": "MonthlyDeveloper",
                 "sub": "UserId",
                 "userId": str(user_login) + str(user_email),
-                "exp": datetime.utcnow() + timedelta(seconds=Env.ACCESS_TOKEN_EXPIRED_TIME)
+                "exp": datetime.utcnow() + timedelta(seconds=int(os.environ.get("ACCESS_TOKEN_EXPIRED_TIME")))
         }
 
-        created_token = jwt.encode(payload, Env.SECRET_KEY, Env.ALGORITHM)
+        created_token = jwt.encode(payload, os.environ.get("SECRET_KEY"), os.environ.get("ALGORITHM"))
         
         return response_model.set_response(req_data.path, 200, "Done", created_token)
 
@@ -26,7 +31,7 @@ class TokenService:
     """
     def validate_token(token):
         try:
-            jwt.decode(token, Env.SECRET_KEY, Env.ALGORITHM)
+            jwt.decode(token, os.environ.get("SECRET_KEY"), os.environ.get("ALGORITHM"))
             return True
         except jwt.exceptions.InvalidSignatureError:
             return False

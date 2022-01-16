@@ -5,7 +5,8 @@ from model import recruit_post_model as model
 
 from service import recruit_service
 
-from .token_require import token_require
+from controller.token_require import token_require
+
 
 # 팀 구인과 관련된 모델 선언
 Recruit = model.RecruitPostModel()
@@ -17,6 +18,7 @@ recruit_delete_post_model = Recruit.recruit_delete_post_model
 
 # 특정 게시글을 검색하기 위한 조건, Query Param 활용
 search_parse = Recruit.search_parse
+
 
 # 새로운 게시글 등록 (작성)
 @recruit_ns.route('/new_post', methods=['POST'])

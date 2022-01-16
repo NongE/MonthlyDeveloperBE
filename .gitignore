@@ -7,5 +7,6 @@
 
 */logs/*
 
+.env
 config.py
 dependency.py

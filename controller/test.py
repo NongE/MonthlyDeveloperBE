@@ -1,3 +1,6 @@
+import os
+from dotenv import load_dotenv
+
 import jwt
 
 from flask import request
@@ -5,9 +8,10 @@ from datetime import datetime, timedelta
 
 from flask_restx import fields, Namespace, Resource
 
-from config.env import Env
+from controller.controller_decorator import validate_token_decorator
 
-from .controller_decorator import validate_token_decorator
+load_dotenv()
+
 authorizations = {
         'jwt_token': {
             'type': 'apiKey',
@@ -17,7 +21,7 @@ authorizations = {
         'test_token': {
             'type': 'apiKey',
             'in': 'header',
-            'name': Env.TEST_TOKEN_NAME
+            'name': os.environ.get("TEST_TOKEN_NAME")
         },
         'query_exam': {
             'type': 'apiKey',
@@ -39,6 +43,13 @@ test_model = test_ns.model('test model', {
         'test String': fields.String(description='Test String', required=True),
     })
 
+
+@test_ns.route("", methods=["GET"])
+class PingPongRoute(Resource):
+    def get(self):
+        return "Ping-Pong!"
+
+
 @test_ns.route('/get_validate_token', methods=['GET'])
 class GetValidateToken(Resource):
     @test_ns.doc(security = "jwt_header")
@@ -46,12 +57,14 @@ class GetValidateToken(Resource):
     def get(self):
         return {"result": "validate Header/Token"}
 
+
 @test_ns.route('/post_validate_token', methods=['POST'])
 class PostValidateToken(Resource):
     @test_ns.doc(security = "jwt_header")
     @validate_token_decorator
     def post(self):
         return {"result": "post method validate Header/Token"}
+
 
 @test_ns.route('/issue_token', methods=['POST'])
 class IssueToken(Resource):
@@ -65,20 +78,20 @@ class IssueToken(Resource):
         # Query
         print(request.args["a"])
         # print(test_query_param.parse_args())
-        
+
         # Body
         print(request.json)
         
         try:
-            if request.headers["test_header"] == Env.TEST_TOKEN:
+            if request.headers["header"] == os.environ.get("TEST_TOKEN"):
                 payload = {
                         "iss": "test_api",
                         "sub": "test_id",
                         "userId": "test_user_name",
-                        "exp": datetime.utcnow() + timedelta(seconds=Env.ACCESS_TOKEN_EXPIRED_TIME)
+                        "exp": datetime.utcnow() + timedelta(seconds=int(os.environ.get("ACCESS_TOKEN_EXPIRED_TIME")))
                 }
 
-                created_token = jwt.encode(payload, Env.TEST_SECRET_KEY , Env.TEST_ALGORITHM)
+                created_token = jwt.encode(payload, os.environ.get("TEST_SECRET_KEY"), os.environ.get("TEST_ALGORITHM"))
 
                 return created_token
             else:

@@ -1,7 +1,9 @@
+import os
+from dotenv import load_dotenv
+
 import requests
 
-from config.env import Env
-
+load_dotenv()
 
 class AuthenticationService():
 
@@ -11,8 +13,8 @@ class AuthenticationService():
     def request_access_token(access_code):
         
         access_token_param = {
-            "client_id": Env.GITHUB_CLIENT_ID,
-            "client_secret": Env.GITHUB_CLIENT_SECRET,
+            "client_id": os.environ.get("GITHUB_CLIENT_ID"),
+            "client_secret": os.environ.get("GITHUB_CLIENT_SECRET"),
             "code": access_code
         }
 

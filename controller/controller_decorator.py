@@ -6,6 +6,7 @@ from model import response_model
 
 response_model = response_model.ResponseModel()
 
+
 def validate_token_decorator(func):
     @wraps(func)
     def validate(*args, **kwargs):

@@ -1,13 +1,15 @@
-import requests
+import os
+from dotenv import load_dotenv
 
 from flask import url_for, redirect, request
 from flask_restx import Resource, Namespace
 
-from config.env import Env
 from model import authentication_model
 
 from service.authentication_service import AuthenticationService
 from service.token_service import TokenService
+
+load_dotenv()
 
 """
 Authlib을 사용하지 않고 구현
@@ -19,14 +21,16 @@ github_access_code_parser = Auth.github_access_code_parser
 create_jwt_model = Auth.create_jwt_model
 validate_jwt = Auth.validate_jwt
 
+
 # 사용자가 로그인 할 때 접속하는 URL (http://localhost:5000/login/github)
 @auth_ns.route('/github', methods=['GET'], doc=False)
 class Github(Resource):
     def get(self):
         # Github 측으로 로그인하고 Access Code를 받기 위해 redirect 설정
-        redirect_uri = f"http://github.com/login/oauth/authorize?client_id={Env.GITHUB_CLIENT_ID}&redirect_uri={Env.REDIRECT_URL}"
+        redirect_uri = f"http://github.com/login/oauth/authorize?client_id={os.environ.get('GITHUB_CLIENT_ID')}&redirect_uri={os.environ.get('REDIRECT_URL')}"
         # 로그인을 위한 redirect
         return redirect(redirect_uri)
+
 
 # Access Code를 전달받기 위한 URL (http://localhost:5000/login/callback)
 @auth_ns.route('/callback', methods=['GET'])

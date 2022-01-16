@@ -6,6 +6,7 @@ from model import response_model
 
 response_model = response_model.ResponseModel()
 
+
 def token_require(func):
     @wraps(func)
     def validate(*args, **kwargs):

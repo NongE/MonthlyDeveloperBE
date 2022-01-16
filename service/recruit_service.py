@@ -2,7 +2,7 @@ import json
 from bson import json_util
 from flask import jsonify
 
-from config import db_connector
+from config.db_config import DBConfig
 from model import response_model
 
 response_model = response_model.ResponseModel()
@@ -12,9 +12,9 @@ def save_post(req_data):
     # 게시글의 고유 아이디 정보
     # 게시글 고유 아이디는 게시글의 등록 순서를 의미
     # 현재 k번 게시글까지 있다고 가정하였을 때 새롭게 등록될 게시글은 k+1번째 게시글임
-    counter_db = db_connector.mongo.counter
+    counter_db = DBConfig.mongo_config().counter
     recruit_post_id = counter_db.find_one({"type": "recruit_post"}, {"_id": 0})["counter"] + 1
-    post_db = db_connector.mongo.recruit_post
+    post_db = DBConfig.mongo_config().recruit_post
     try:
         # 새 글 생성
         recruit_title = req_data.json.get("recruit_title")  # 제목
@@ -57,13 +57,13 @@ def search_post(req_data):
     def for_unit_search(search_method, search_word, search_page):
 
         # 전체 조회
-        if search_method == None:
-            data = db_connector.mongo.recruit_post.find({}, {"_id": 0}).skip((search_page - 1) * 10).limit(10)
+        if search_method is None:
+            data = DBConfig.mongo_config().recruit_post.find({}, {"_id": 0}).skip((search_page - 1) * 10).limit(10)
             data = [doc for doc in data]
 
         # 전체 범위에 대해 검색 (제목 ~ 태그)
         elif search_method == 'all':
-            data = db_connector.mongo.recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
+            data = DBConfig.mongo_config().recruit_post.find({"$or": [{"recruit_title": {'$regex': search_word}},
                                                                 {"recruit_author": {'$regex': search_word}},
                                                                 {"recruit_contents": {'$regex': search_word}},
                                                                 {"recruit_tags": {'$regex': search_word}},
@@ -71,7 +71,7 @@ def search_post(req_data):
             data = [doc for doc in data]
         # 특정 범위에 대해 검색(제목, 작성자 등)
         else:
-            data = db_connector.mongo.recruit_post.find({search_method: {'$regex': search_word}}, {"_id": 0}).skip(
+            data = DBConfig.mongo_config().recruit_post.find({search_method: {'$regex': search_word}}, {"_id": 0}).skip(
                 (search_page - 1) * 10).limit(10)
             data = [doc for doc in data]
 
@@ -143,7 +143,7 @@ def update_post(req_data):
     # 수정하려는 게시글의 번호와 내용을 전달받음
     try:
         update_data = req_data.json
-        db_connector.mongo.recruit_post.update({"recruit_post_id": update_data["recruit_post_id"]}, update_data)
+        DBConfig.mongo_config().recruit_post.update({"recruit_post_id": update_data["recruit_post_id"]}, update_data)
         return response_model.set_response(req_data.path, 200, "Done", update_data["recruit_post_id"])
 
     except:
@@ -155,7 +155,7 @@ def delete_post(req_data):
     # 삭제하고자 하는 게시글의 번호를 전달 받아 삭제
     try:
         delete_data = req_data.json
-        delete_result = db_connector.mongo.recruit_post.delete_one({"recruit_post_id": delete_data["recruit_post_id"]})
+        delete_result = DBConfig.mongo_config().recruit_post.delete_one({"recruit_post_id": delete_data["recruit_post_id"]})
         
         if delete_result.deleted_count == 0:
             return response_model.set_response(req_data.path, 200, "Fail", f"No recruit_post_id: {delete_data['recruit_post_id']}")
