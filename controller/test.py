@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 
 import jwt
+import bcrypt
 
 from flask import request
 from datetime import datetime, timedelta
@@ -39,6 +40,9 @@ test_header.add_argument('header', location='headers', help= 'test header')
 test_query_param = test_ns.parser()
 test_query_param.add_argument('a', type=int,  help= 'test query param')
 
+bcrypt_param = test_ns.parser()
+bcrypt_param.add_argument('word', type=str)
+
 test_model = test_ns.model('test model', {
         'test String': fields.String(description='Test String', required=True),
     })
@@ -47,6 +51,21 @@ test_model = test_ns.model('test model', {
 @test_ns.route("", methods=["GET"])
 class PingPongRoute(Resource):
     def get(self):
+        return "Ping-Pong!"
+
+@test_ns.route("/bcrypt", methods=["GET"])
+class BcryptTest(Resource):
+    @test_ns.expect(bcrypt_param)
+    def get(self):
+        p = request.args["word"]
+        print(p)
+        
+        hash_p = bcrypt.hashpw(p.encode("utf-8"), bcrypt.gensalt())
+        print(hash_p)
+
+        answer = "test"
+        print(bcrypt.checkpw(answer.encode("utf-8"), hash_p))
+        
         return "Ping-Pong!"
 
 
