@@ -4,18 +4,18 @@ from dotenv import load_dotenv
 from flask import url_for, redirect, request
 from flask_restx import Resource, Namespace
 
-from model import authentication_model
+from model.login import github_model
 
-from service.authentication_service import AuthenticationService
+from service.login.github_service import GithubService
 from service.token_service import TokenService
 
 load_dotenv()
 
 """
 Authlib을 사용하지 않고 구현
-로그인 URL: ~/login/test
+로그인 URL: ~/login/github
 """
-Auth = authentication_model.AuthenticationModel()
+Auth = github_model.GithubModel()
 auth_ns = Auth.auth_ns
 github_access_code_parser = Auth.github_access_code_parser
 create_jwt_model = Auth.create_jwt_model
@@ -42,13 +42,13 @@ class RedirectTest(Resource):
         access_code = github_access_code_parser.parse_args()["code"]
 
         # 전달받은 access code를 활용하여 access token 요청
-        access_token = AuthenticationService.request_access_token(access_code)
+        access_token = GithubService.request_access_token(access_code)
 
         # 발급받은 access token을 활용하여 사용자 정보 요청
-        user_login, user_email = AuthenticationService.request_user_info(access_token)
+        user_login, user_email = GithubService.request_user_info(access_token)
 
         # 로그인한 사용자가 서비스 이용자인지 확인
-        if AuthenticationService.vaildate_user(user_login, user_email):
+        if GithubService.vaildate_user(user_login, user_email):
             # 신규회원, 기존회원일 시 토큰 생성
             access_token = TokenService.create_token(request, user_login, user_email)
         else:

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from flask_restx import fields, Namespace, Resource
 
-from controller.controller_decorator import validate_token_decorator
+from decorator.token_validator import token_validator
 
 load_dotenv()
 
@@ -72,7 +72,7 @@ class BcryptTest(Resource):
 @test_ns.route('/get_validate_token', methods=['GET'])
 class GetValidateToken(Resource):
     @test_ns.doc(security = "jwt_header")
-    @validate_token_decorator
+    @token_validator
     def get(self):
         return {"result": "validate Header/Token"}
 
@@ -80,7 +80,7 @@ class GetValidateToken(Resource):
 @test_ns.route('/post_validate_token', methods=['POST'])
 class PostValidateToken(Resource):
     @test_ns.doc(security = "jwt_header")
-    @validate_token_decorator
+    @token_validator
     def post(self):
         return {"result": "post method validate Header/Token"}
 
@@ -92,15 +92,16 @@ class IssueToken(Resource):
     def post(self):
 
         # Header
-        print(request.headers)
+        print(request.headers["header"])
 
         # Query
         print(request.args["a"])
         # print(test_query_param.parse_args())
 
         # Body
-        print(request.json)
+        print(request.json["test String"])
         
+        print(os.environ.get("TEST_TOKEN"))
         try:
             if request.headers["header"] == os.environ.get("TEST_TOKEN"):
                 payload = {

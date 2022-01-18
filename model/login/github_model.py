@@ -1,7 +1,7 @@
 from flask_restx import fields, Namespace
 
 
-class AuthenticationModel:
+class GithubModel:
     auth_ns = Namespace("Github Oauth", description="Github Oauth 로그인")
 
     github_access_code_parser = auth_ns.parser()

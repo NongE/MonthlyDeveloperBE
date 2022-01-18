@@ -2,10 +2,11 @@
 .DS_Store
 
 /_db
+flask_venv/*
 */__pycache__/*
-*.pyc
-
 */logs/*
+
+*.pyc
 
 .env
 config.py

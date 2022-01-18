@@ -7,7 +7,7 @@ from model import response_model
 response_model = response_model.ResponseModel()
 
 
-def validate_token_decorator(func):
+def token_validator(func):
     @wraps(func)
     def validate(*args, **kwargs):
         try:

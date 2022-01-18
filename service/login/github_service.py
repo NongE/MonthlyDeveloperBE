@@ -1,11 +1,13 @@
 import os
 from dotenv import load_dotenv
 
+from config.db_config import DBConfig
+
 import requests
 
 load_dotenv()
 
-class AuthenticationService():
+class GithubService():
 
     """
         Access Code를 활용하여 Access Token을 요청하는 부분
@@ -55,4 +57,14 @@ class AuthenticationService():
         임시로 True 만을 반환하도록 설정
     """
     def vaildate_user(user_login, user_email):
-        return True
+
+        wmd_users = DBConfig.mongo_config().wmd_users
+        users_data = wmd_users.find({"login": user_login, "email":user_email}, {"_id": 0})
+
+        data = [doc for doc in users_data]
+        
+        if len(data) == 1:
+            return True
+        else:
+            return False
+    
