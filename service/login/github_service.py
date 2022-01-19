@@ -1,4 +1,5 @@
 import os
+import bcrypt
 from dotenv import load_dotenv
 
 from config.db_config import DBConfig
@@ -57,13 +58,30 @@ class GithubService():
         임시로 True 만을 반환하도록 설정
     """
     def vaildate_user(user_login, user_email):
-
+        
         wmd_users = DBConfig.mongo_config().wmd_users
-        users_data = wmd_users.find({"login": user_login, "email":user_email}, {"_id": 0})
+        
+        users_data = wmd_users.find({"email":user_email}, {"_id": 0})
 
         data = [doc for doc in users_data]
         
         if len(data) == 1:
+            if bcrypt.checkpw(str(user_login).encode("utf-8"), data[0]['login']):
+                print("is already!")
+                return True
+            else:
+                return False
+        elif len(data) == 0:
+            
+            hash_user_login = bcrypt.hashpw(str(user_login).encode("utf-8"), bcrypt.gensalt())
+
+            user_info = {
+                "login": hash_user_login,
+                "email": user_email
+            }
+
+            wmd_users.insert_one(user_info)
+
             return True
         else:
             return False
