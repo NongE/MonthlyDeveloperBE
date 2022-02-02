@@ -1,5 +1,5 @@
 class ResponseModel:
-    def set_response(self, req_path, code, message, res):
+    def set_response(req_path, code, message, res):
         return  {
             "req_path": req_path,
             "req_result": {

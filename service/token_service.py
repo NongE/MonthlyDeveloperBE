@@ -1,29 +1,14 @@
-import os
-from dotenv import load_dotenv
-
-from datetime import datetime, timedelta
 import jwt
+from datetime import datetime, timedelta
 
-
-from model import response_model
-response_model = response_model.ResponseModel()
-
-load_dotenv()
-
+from config.config import Config
+from model.response_model import ResponseModel
 
 class TokenService:
 
-    def create_token(req_data, user_login, user_email):
-        payload = {
-                "iss": "MonthlyDeveloper",
-                "sub": "UserId",
-                "userId": str(user_login) + str(user_email),
-                "exp": datetime.utcnow() + timedelta(seconds=int(os.environ.get("ACCESS_TOKEN_EXPIRED_TIME")))
-        }
-
-        created_token = jwt.encode(payload, os.environ.get("SECRET_KEY"), os.environ.get("ALGORITHM"))
-        
-        return response_model.set_response(req_data.path, 200, "Done", created_token)
+    def create_token(req_data, user_info):
+        created_token = jwt.encode(user_info, Config.SECRET_KEY, Config.ALGORITHM)
+        return ResponseModel.set_response(req_data.path, 200, "Done", created_token)
 
     """
         전달받은 토큰이 유효한지 확인하는 함수
@@ -31,7 +16,7 @@ class TokenService:
     """
     def validate_token(token):
         try:
-            jwt.decode(token, os.environ.get("SECRET_KEY"), os.environ.get("ALGORITHM"))
+            jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
             return True
         except jwt.exceptions.InvalidSignatureError:
             return False

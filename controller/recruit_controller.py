@@ -1,9 +1,9 @@
 from flask import request, redirect, jsonify
 from flask_restx import Api, Resource, fields, Namespace
 
-from model.board import recruit_model as model
+from model import recruit_model as model
 
-from service.board import recruit_service
+from service import recruit_service
 
 from decorator.token_validator import token_validator
 

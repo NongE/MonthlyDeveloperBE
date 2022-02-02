@@ -1,9 +1,6 @@
-import os
-from dotenv import load_dotenv
-
+from config.config import Config
 from app import create_env
 
-load_dotenv()
 
 if __name__ == '__main__':
-    create_env().run(os.environ.get("HOST_IP"), port=os.environ.get("PORT, debug=True"), debug=True)
+    create_env().run(Config.HOST_IP, port=Config.PORT, debug=True)

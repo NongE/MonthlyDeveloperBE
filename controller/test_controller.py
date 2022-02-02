@@ -1,17 +1,13 @@
-import os
-from dotenv import load_dotenv
-
 import jwt
 import bcrypt
-
-from flask import request
 from datetime import datetime, timedelta
 
+from flask import request
 from flask_restx import fields, Namespace, Resource
 
+from config.config import Config
 from decorator.token_validator import token_validator
 
-load_dotenv()
 
 authorizations = {
         'jwt_token': {
@@ -22,7 +18,7 @@ authorizations = {
         'test_token': {
             'type': 'apiKey',
             'in': 'header',
-            'name': os.environ.get("TEST_TOKEN_NAME")
+            'name': Config.TEST_TOKEN_NAME
         },
         'query_exam': {
             'type': 'apiKey',
@@ -79,7 +75,7 @@ class GetValidateToken(Resource):
 
 @test_ns.route('/post_validate_token', methods=['POST'])
 class PostValidateToken(Resource):
-    @test_ns.doc(security = "jwt_header")
+    @test_ns.expect(test_header)
     @token_validator
     def post(self):
         return {"result": "post method validate Header/Token"}
@@ -101,17 +97,17 @@ class IssueToken(Resource):
         # Body
         print(request.json["test String"])
         
-        print(os.environ.get("TEST_TOKEN"))
+        print(Config.TEST_TOKEN)
         try:
-            if request.headers["header"] == os.environ.get("TEST_TOKEN"):
+            if request.headers["header"] == Config.TEST_TOKEN:
                 payload = {
                         "iss": "test_api",
                         "sub": "test_id",
                         "userId": "test_user_name",
-                        "exp": datetime.utcnow() + timedelta(seconds=int(os.environ.get("ACCESS_TOKEN_EXPIRED_TIME")))
+                        "exp": datetime.utcnow() + timedelta(seconds=int(Config.ACCESS_TOKEN_EXPIRED_TIME))
                 }
 
-                created_token = jwt.encode(payload, os.environ.get("TEST_SECRET_KEY"), os.environ.get("TEST_ALGORITHM"))
+                created_token = jwt.encode(payload, Config.TEST_SECRET_KEY, Config.TEST_ALGORITHM)
 
                 return created_token
             else:
