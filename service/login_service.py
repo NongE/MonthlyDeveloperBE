@@ -6,8 +6,8 @@ from config.connector import Connector
 
 from service.github.github_request import GithubRequest
 
-class LoginService():
 
+class LoginService:
     def get_github_user_info(access_code):
         access_token = GithubRequest.request_access_token(access_code)
         user_info = GithubRequest.request_user_info(access_token)
@@ -38,7 +38,8 @@ class LoginService():
                 "github_id": str(user_info.id),
                 "login": str(user_info.login),
                 "email": str(user_info.email),
-                "approval": True
+                "approval": True,
+                "role": "user"
             }
             db_users.insert_one(user_info)
             db_user_counter.update_one({"type": "user_counter"}, {"$set": {"counter": user_id}})

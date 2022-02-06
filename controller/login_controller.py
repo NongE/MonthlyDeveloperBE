@@ -4,7 +4,6 @@ from config.config import Config
 from flask import url_for, redirect, request
 from flask_restx import Resource, Namespace
 
-from model.response_model import ResponseModel
 from model.login_model import LoginModel
 
 from service.login_service import LoginService
@@ -16,6 +15,7 @@ Authlib을 사용하지 않고 구현
 """
 login_ns = LoginModel.login_ns
 github_callback_parser = LoginModel.github_callback_parser
+
 
 # 사용자가 로그인 할 때 접속하는 URL (http://localhost:5000/login/github)
 @login_ns.route('/github', methods=['GET'], doc=False)
@@ -45,6 +45,6 @@ class GithubCallback(Resource):
             return TokenService.create_token(request, user_info)
         else:
             print("New")
-            new_user_info = LoginService.save_user(github_user_info)
+            LoginService.save_user(github_user_info)
             user_info = LoginService.is_existing_user(github_user_info)
             return TokenService.create_token(request, user_info)
