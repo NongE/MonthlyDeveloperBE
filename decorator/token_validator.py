@@ -8,12 +8,12 @@ from model.response_model import ResponseModel
 def token_validator(func):
     @wraps(func)
     def validate(*args, **kwargs):
-        try:
+        if "Header" in request.headers:
             token = request.headers["Header"]
-            if TokenService.validate_token(token):
+            if TokenService.validate_token(token) and TokenService.get_user_approval(token):
                 return func(*args, **kwargs)
             else:
                 return ResponseModel.set_response(request.path, 200, "Unknown Header/Token", None)
-        except:
+        else:
             return ResponseModel.set_response(request.path, 200, "Not Found Header/Token", None)
     return validate

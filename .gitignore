@@ -8,6 +8,8 @@ flask_venv/*
 
 *.pyc
 
+.idea/
+
 .env
 config.py
 dependency.py

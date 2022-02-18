@@ -27,7 +27,7 @@ class Github(Resource):
         return redirect(redirect_uri)
 
 
-# Access Code를 전달받기 위한 URL (http://localhost:5000/login/callback)
+# Access Code를 전달받기 위한 URL (http://localhost:5500/login/callback)
 @login_ns.route('/callback', methods=['GET'])
 class GithubCallback(Resource):
     @login_ns.expect(github_callback_parser)

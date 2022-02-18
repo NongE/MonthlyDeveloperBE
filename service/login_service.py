@@ -1,4 +1,3 @@
-import bcrypt
 import requests
 
 from config.config import Config
@@ -29,7 +28,7 @@ class LoginService:
     def save_user(user_info):
         # 서비스에서 고객의 ID는 순차적으로 부여함
         db_user_counter = Connector.mongodb_connector().counter
-        user_id = db_user_counter.find_one({"type": "user_counter"}, {"_id": 0})["counter"] + 1
+        user_id = db_user_counter.find_one({"type": "users"}, {"_id": 0})["counter"] + 1
 
         db_users = Connector.mongodb_connector().users
         try:
@@ -42,7 +41,7 @@ class LoginService:
                 "role": "user"
             }
             db_users.insert_one(user_info)
-            db_user_counter.update_one({"type": "user_counter"}, {"$set": {"counter": user_id}})
+            db_user_counter.update_one({"type": "users"}, {"$set": {"counter": user_id}})
             return True
         except:
             return False

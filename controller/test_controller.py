@@ -1,5 +1,4 @@
 import jwt
-import bcrypt
 from datetime import datetime, timedelta
 
 from flask import request
