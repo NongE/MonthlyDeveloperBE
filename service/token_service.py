@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from config.config import Config
 from model.response_model import ResponseModel
 
-
 class TokenService:
 
     def create_token(req_data, user_info):
